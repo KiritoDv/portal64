@@ -29,8 +29,8 @@ std::unique_ptr<DataChunk> RawContentCommand::GenerateCommand() {
 }
 
 VTXCommand::VTXCommand(
-        int numVerts, 
-        int indexBufferStart, 
+        int numVerts,
+        int indexBufferStart,
         std::string vertexBuffer,
         int vertexBufferOffset
     ) :
@@ -45,14 +45,14 @@ VTXCommand::VTXCommand(
 std::unique_ptr<DataChunk> VTXCommand::GenerateCommand() {
     std::unique_ptr<MacroDataChunk> result(new MacroDataChunk("gsSPVertex"));
 
-    std::string vertexIndex = std::string("&") + 
+    std::string vertexIndex = std::string("&") +
         mVertexBuffer +
         "[" + std::to_string(mVertexBufferOffset) + "]";
 
     result->AddPrimitive(vertexIndex);
     result->AddPrimitive(mNumVerts);
     result->AddPrimitive(mIndexBufferStart);
-    
+
     return std::move(result);
 }
 
@@ -71,7 +71,7 @@ std::unique_ptr<DataChunk> TRI1Command::GenerateCommand() {
     result->AddPrimitive(mB);
     result->AddPrimitive(mC);
     result->AddPrimitive(0);
-    
+
     return std::move(result);
 }
 
@@ -86,7 +86,7 @@ TRI2Command::TRI2Command(int a0, int b0, int c0, int a1, int b1, int c1) :
 
     }
 
-std::unique_ptr<DataChunk> TRI2Command::GenerateCommand() {    
+std::unique_ptr<DataChunk> TRI2Command::GenerateCommand() {
     std::unique_ptr<MacroDataChunk> result(new MacroDataChunk("gsSP2Triangles"));
 
     result->AddPrimitive(mA0);
@@ -98,11 +98,11 @@ std::unique_ptr<DataChunk> TRI2Command::GenerateCommand() {
     result->AddPrimitive(mB1);
     result->AddPrimitive(mC1);
     result->AddPrimitive(0);
-    
+
     return std::move(result);
 }
 
-CallDisplayListByNameCommand::CallDisplayListByNameCommand(const std::string& dlName): 
+CallDisplayListByNameCommand::CallDisplayListByNameCommand(const std::string& dlName):
     DisplayListCommand(DisplayListCommandType::G_DL),
     mDLName(dlName) {
 
@@ -112,11 +112,11 @@ std::unique_ptr<DataChunk> CallDisplayListByNameCommand::GenerateCommand() {
     std::unique_ptr<MacroDataChunk> result(new MacroDataChunk("gsSPDisplayList"));
 
     result->AddPrimitive(mDLName);
-    
+
     return std::move(result);
 }
 
-PushMatrixCommand::PushMatrixCommand(unsigned int matrixOffset, bool replace): 
+PushMatrixCommand::PushMatrixCommand(unsigned int matrixOffset, bool replace):
     DisplayListCommand(DisplayListCommandType::G_MTX),
     mMatrixOffset(matrixOffset),
     mReplace(replace) {
@@ -139,14 +139,14 @@ std::unique_ptr<DataChunk> PushMatrixCommand::GenerateCommand() {
     }
 
     result->AddPrimitive(flags);
-    
+
     return std::move(result);
 }
 
-PopMatrixCommand::PopMatrixCommand(unsigned int popCount): 
+PopMatrixCommand::PopMatrixCommand(unsigned int popCount):
     DisplayListCommand(DisplayListCommandType::G_POPMTX),
     mPopCount(popCount) {
-        
+
 }
 
 std::unique_ptr<DataChunk> PopMatrixCommand::GenerateCommand() {
@@ -162,7 +162,7 @@ std::unique_ptr<DataChunk> PopMatrixCommand::GenerateCommand() {
 
         return std::move(result);
     }
-    
+
     std::unique_ptr<MacroDataChunk> result(new MacroDataChunk("gsSPPopMatrix"));
 
     result->AddPrimitive<const char*>("G_MTX_MODELVIEW");
@@ -176,8 +176,8 @@ std::string generateGeometryMode(GeometryMode mode) {
     return result;
 }
 
-ChangeGeometryMode::ChangeGeometryMode(GeometryMode clear, GeometryMode set): 
-    DisplayListCommand(DisplayListCommandType::G_GEOMETRYMODE), 
+ChangeGeometryMode::ChangeGeometryMode(GeometryMode clear, GeometryMode set):
+    DisplayListCommand(DisplayListCommandType::G_GEOMETRYMODE),
     mClear(clear),
     mSet(set) {
 }
@@ -191,10 +191,10 @@ std::unique_ptr<DataChunk> ChangeGeometryMode::GenerateCommand() {
     return std::move(result);
 }
 
-CullDisplayList::CullDisplayList(unsigned int vertexCount): 
-    DisplayListCommand(DisplayListCommandType::G_CULLDL), 
+CullDisplayList::CullDisplayList(unsigned int vertexCount):
+    DisplayListCommand(DisplayListCommandType::G_CULLDL),
     mVertexCount(vertexCount) {
-    
+
 }
 
 std::unique_ptr<DataChunk> CullDisplayList::GenerateCommand() {
@@ -208,11 +208,11 @@ std::unique_ptr<DataChunk> CullDisplayList::GenerateCommand() {
 DisplayList::DisplayList(std::string name):
     mName(name),
     mDataChunk(new StructureDataChunk()) {
-    
+
 }
 
 void DisplayList::AddCommand(std::unique_ptr<DisplayListCommand> command) {
-    mDataChunk->Add(std::move(command->GenerateCommand()));
+    mDataChunk->Add(command->GenerateCommand());
 }
 
 StructureDataChunk& DisplayList::GetDataChunk() {
@@ -227,10 +227,10 @@ std::unique_ptr<FileDefinition> DisplayList::Generate(const std::string& fileSuf
     mDataChunk->Add(std::unique_ptr<DataChunk>(new MacroDataChunk("gsSPEndDisplayList")));
 
     std::unique_ptr<FileDefinition> result(new DataFileDefinition(
-        std::string("Gfx"), 
-        mName, 
-        true, 
-        fileSuffix, 
+        std::string("Gfx"),
+        mName,
+        true,
+        fileSuffix,
         std::move(mDataChunk)
     ));
 

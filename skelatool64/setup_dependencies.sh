@@ -1,6 +1,14 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-sudo apt install -y libpng-dev libtiff-dev libassimp-dev g++ liblua5.4-dev cmake
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "MacOS detected, installing dependencies with Homebrew"
+    brew install libpng libtiff assimp lua cmake
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Running on Linux, installing dependencies with apt"
+    sudo apt install -y libpng-dev libtiff-dev libassimp-dev g++ liblua5.4-dev cmake
+else
+    echo "Unsupported operating system"
+fi
 
 pushd $(dirname "$0")
 

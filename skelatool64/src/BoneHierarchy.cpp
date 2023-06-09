@@ -49,7 +49,7 @@ Bone* Bone::FindCommonAncestor(Bone* a, Bone* b) {
     }
 
     curr = b;
-    
+
     while (curr) {
         hierarchyDifference.erase(curr);
         curr = curr->mParent;
@@ -196,7 +196,7 @@ void BoneHierarchy::GenerateRestPosiitonData(CFileDefinition& fileDef, const std
     std::unique_ptr<StructureDataChunk> transformData(new StructureDataChunk());
 
     for (unsigned int boneIndex = 0; boneIndex < mBones.size(); ++boneIndex) {
-        transformData->Add(std::move(mBones[boneIndex]->GenerateRestPosiitonData()));
+        transformData->Add(mBones[boneIndex]->GenerateRestPosiitonData());
 
         std::string boneName = fileDef.GetUniqueName(mBones[boneIndex]->GetName() + "_BONE");
         std::transform(boneName.begin(), boneName.end(), boneName.begin(), ::toupper);

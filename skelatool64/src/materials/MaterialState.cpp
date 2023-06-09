@@ -28,9 +28,9 @@ void FlagList::DeleteFlag(int mask) {
 struct FlagList FlagList::GetDeltaFrom(const struct FlagList& other) const {
     struct FlagList result;
 
-    result.knownFlags = 
+    result.knownFlags =
         // flags known by both with different values
-        (knownFlags & other.knownFlags & (flags ^ other.flags)) | 
+        (knownFlags & other.knownFlags & (flags ^ other.flags)) |
         // flags known by this but not that
         (knownFlags & ~other.knownFlags);
     // mask by knownFlags so unknown data is set
@@ -42,7 +42,7 @@ struct FlagList FlagList::GetDeltaFrom(const struct FlagList& other) const {
 
 void FlagList::ApplyFrom(const FlagList& other) {
     knownFlags |= other.knownFlags;
-    flags = (other.flags & other.knownFlags) | (flags & ~other.knownFlags);   
+    flags = (other.flags & other.knownFlags) | (flags & ~other.knownFlags);
 }
 
 TextureCoordinateState::TextureCoordinateState():
@@ -95,12 +95,12 @@ TextureState::TextureState():
     tile(0),
     isOn(false) {}
 
-ColorCombineMode::ColorCombineMode() : 
+ColorCombineMode::ColorCombineMode() :
     color{ColorCombineSource::_0, ColorCombineSource::_0, ColorCombineSource::_0, ColorCombineSource::_0},
     alpha{AlphaCombineSource::_0, AlphaCombineSource::_0, AlphaCombineSource::_0, AlphaCombineSource::_0} {}
 
 
-ColorCombineMode::ColorCombineMode(ColorCombineSource c0, ColorCombineSource c1, ColorCombineSource c2, ColorCombineSource c3, AlphaCombineSource a0, AlphaCombineSource a1, AlphaCombineSource a2, AlphaCombineSource a3) : 
+ColorCombineMode::ColorCombineMode(ColorCombineSource c0, ColorCombineSource c1, ColorCombineSource c2, ColorCombineSource c3, AlphaCombineSource a0, AlphaCombineSource a1, AlphaCombineSource a2, AlphaCombineSource a3) :
     color{c0, c1, c2, c3},
     alpha{a0, a1, a2, a3} {}
 
@@ -116,7 +116,7 @@ bool ColorCombineMode::operator==(const ColorCombineMode& other) const {
 }
 
 RenderModeState::RenderModeState() : data(G_RM_OPA_SURF) {
-    
+
 }
 
 RenderModeState::RenderModeState(int data) : data(data) {};
@@ -290,7 +290,7 @@ void generateEnumMacro(int from, int to, const char* macroName, const char** opt
 }
 
 std::unique_ptr<DataChunk> generateCombineMode(const MaterialState& from, const MaterialState& to) {
-    if (!to.hasCombineMode || 
+    if (!to.hasCombineMode ||
         (from.hasCombineMode && from.cycle1Combine == to.cycle1Combine && from.cycle2Combine  == to.cycle2Combine)) {
         return NULL;
     }
@@ -376,7 +376,7 @@ std::unique_ptr<DataChunk> generateRenderMode(const MaterialState& from, const M
 void generatePrimitiveColor(const MaterialState& from, const MaterialState& to, StructureDataChunk& output) {
     if (!to.usePrimitiveColor ||
         (from.usePrimitiveColor && from.primitiveColor == to.primitiveColor && from.primitiveL == to.primitiveL && from.primitiveM == to.primitiveM)) {
-        return;   
+        return;
     }
 
     std::unique_ptr<MacroDataChunk> result(new MacroDataChunk("gsDPSetPrimColor"));
@@ -547,7 +547,7 @@ void generateTile(CFileDefinition& fileDef, const MaterialState& from, const Til
         setTile->AddPrimitive(buildClampAndWrap(to.sCoord.wrap, to.sCoord.mirror));
         setTile->AddPrimitive(to.sCoord.mask);
         setTile->AddPrimitive(to.sCoord.shift);
-        
+
         output.Add(std::move(setTile));
     }
 
@@ -574,7 +574,7 @@ void generateTexture(const TextureState& from, const TextureState& to, Structure
     if (from.isOn && from.sc == to.sc && from.tc == to.tc && from.level == to.level && from.tile == to.tile) {
         return;
     }
-    
+
     std::unique_ptr<MacroDataChunk> setTexture(new MacroDataChunk("gsSPTexture"));
     setTexture->AddPrimitive(to.sc);
     setTexture->AddPrimitive(to.tc);
@@ -601,17 +601,17 @@ void generateMaterial(CFileDefinition& fileDef, const MaterialState& from, const
     generateEnumMacro((int)from.alphaCompare, (int)to.alphaCompare, "gsDPSetAlphaCompare", gAlphaCompareNames, output);
     generateEnumMacro((int)from.depthSource, (int)to.depthSource, "gsDPSetDepthSource", gDepthSourceNames, output);
 
-    std::unique_ptr<DataChunk> geometryModes = std::move(generateGeometryModes(from, to));
+    std::unique_ptr<DataChunk> geometryModes = generateGeometryModes(from, to);
     if (geometryModes) {
         output.Add(std::move(geometryModes));
     }
 
-    std::unique_ptr<DataChunk> combineMode = std::move(generateCombineMode(from, to));
+    std::unique_ptr<DataChunk> combineMode = generateCombineMode(from, to);
     if (combineMode) {
         output.Add(std::move(combineMode));
     }
 
-    std::unique_ptr<DataChunk> renderMode = std::move(generateRenderMode(from, to));
+    std::unique_ptr<DataChunk> renderMode = generateRenderMode(from, to);
     if (renderMode) {
         output.Add(std::move(renderMode));
     }
@@ -742,7 +742,7 @@ void applyMaterial(const MaterialState& from, MaterialState& to) {
         to.useBlendColor = true;
         to.blendColor = from.blendColor;
     }
-} 
+}
 
 double materialOtherModeH(int from, int to) {
     if (from != to && to != 0) {
@@ -861,7 +861,7 @@ double materialTransitionTime(const MaterialState& from, const MaterialState& to
         result += materialTileTime(from, to.tiles[i]);
     }
 
-    if (to.textureState.isOn && !(from.textureState.sc == to.textureState.sc || 
+    if (to.textureState.isOn && !(from.textureState.sc == to.textureState.sc ||
         from.textureState.tc == to.textureState.tc ||
         from.textureState.level == to.textureState.level ||
         from.textureState.tile == to.textureState.tile)) {

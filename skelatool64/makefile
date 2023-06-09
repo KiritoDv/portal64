@@ -1,7 +1,6 @@
-
-GCC_FLAGS = -Wall -Werror -g -rdynamic -I./yaml-cpp/include 
-
-LINKER_FLAGS = -L./yaml-cpp -lassimp -lyaml-cpp -lpng -ltiff -llua5.4 -ldl
+LIBS := assimp libpng lua5.4 libtiff-4
+GCC_FLAGS = -Wall -g -I./yaml-cpp/include $(shell pkg-config $(LIBS) --cflags)
+LINKER_FLAGS = -L./yaml-cpp -lyaml-cpp -ldl $(shell pkg-config $(LIBS) --libs)
 
 SRC_FILES = main.cpp $(shell find src/ -type f -name '*.cpp')
 
@@ -25,7 +24,7 @@ build/lua/%.o: lua/%.lua
 
 build/%.o: %.cpp
 	@mkdir -p $(@D)
-	g++ $(GCC_FLAGS) -c $< -o $@
+	g++ $(GCC_FLAGS) -std=c++17 -c $< -o $@
 	$(CC) $(GCC_FLAGS) -MM $^ -MF "$(@:.o=.d)" -MT"$@"
 
 skeletool64: $(OBJ_FILES) $(LUA_OBJ_FILES)
@@ -35,7 +34,7 @@ clean:
 	rm -r build/
 
 init:
-	
+
 
 install: skeletool64
 	cp skeletool64 ~/.local/bin
